@@ -1,4 +1,4 @@
-name: PR Size Check  
+name: PR Size Check
 
 on:
   pull_request:
@@ -6,41 +6,38 @@ on:
       - '**/*'
 
 jobs:
-  check_pr_size:  
-    runs-on: ubuntu-latest 
+  check_pr_size:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code  
-        uses: actions/checkout@v2  
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Ensure the branch is up to date  
+      - name: Ensure the branch is up to date
         run: |
           git fetch origin main
 
       - name: Calculate changes and check PR size
         run: |
-          # Calculate changes and check PR size
-          diff_stats=$(git diff --stat origin/main..HEAD)
+          # Calculate added and deleted lines using git diff --numstat
+          diff_stats=$(git diff --numstat origin/main..HEAD)
 
           # If there are no changes, set added_lines and deleted_lines to 0
-          if [ -z "$diff_stats" ]; then
-            added_lines=0
-            deleted_lines=0
-          else
-            added_lines=$(echo "$diff_stats" | grep -o '\+.*' | awk -F'+' '{s+=$2} END {print s}')
-            deleted_lines=$(echo "$diff_stats" | grep -o '\-.*' | awk -F'-' '{s+=$2} END {print s}')
-          fi
+          added_lines=0
+          deleted_lines=0
 
+          # Parse the diff stats output
+          while read -r added del _; do
+            added_lines=$((added_lines + added))
+            deleted_lines=$((deleted_lines + del))
+          done <<< "$diff_stats"
+
+          # Log the added and deleted lines
           echo "Added lines: $added_lines"
           echo "Deleted lines: $deleted_lines"
 
-          # If no lines are found, set default values to 0
-          added_lines=${added_lines:-0}
-          deleted_lines=${deleted_lines:-0}
-
           # Calculate total changes
           total_changes=$((added_lines + deleted_lines))
-
           echo "Total changes: $total_changes"
 
           # Define thresholds
@@ -54,4 +51,3 @@ jobs:
           else
             echo "Pull request size is within the acceptable range."
           fi
-
