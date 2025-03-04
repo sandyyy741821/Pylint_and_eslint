@@ -3,29 +3,9 @@ name: Code Linting
 on: [push, pull_request]
 
 jobs:
-  lint-python:
+  lint:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-
-      - name: Install pylint
-        run: |
-          cd python_code
-          pip install pylint
-
-      - name: Run pylint
-        run: |
-          cd python_code
-          pylint app.py
-
-  lint-js:
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -35,12 +15,23 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install eslint
-        run: |
-          cd js_code
-          npm install eslint --save-dev
+      - name: Install JS dependencies
+        run: npm install
+        working-directory: js_code
 
-      - name: Run eslint
+      - name: Run ESLint
+        run: npx eslint script.js --config eslint.config.mjs
+        working-directory: js_code
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install PyLint
         run: |
-          cd js_code
-          npx eslint script.js
+          python -m pip install --upgrade pip
+          pip install pylint
+
+      - name: Run PyLint
+        run: pylint python_code/*.py
