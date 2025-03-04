@@ -32,4 +32,4 @@ jobs:
             exit 1  
           else
             echo "Pull request size is within the acceptable range."
-        
+          fi
