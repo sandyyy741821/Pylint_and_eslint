@@ -5,6 +5,6 @@ def greet():
     """
     Greeting message
     """
-    print(f"Hello, World!")
+    print("Hello")
 
 
