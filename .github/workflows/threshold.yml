@@ -15,23 +15,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Fetch all branches and PR information
-      - name: Fetch all branches
+      # Step 2: Ensure the correct branches are fetched
+      - name: Ensure correct branches are fetched
         run: |
-          git fetch --all
-          git fetch origin pull/${{ github.event.pull_request.number }}/head:test_branch
+          git fetch origin
 
       # Step 3: Check the number of lines changed in the PR
       - name: Check changes in PR
         run: |
-          # Ensure we're comparing the correct branches
-          added_lines=$(git diff --stat origin/main...test_branch | awk '{print $1}' | awk -F'+' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
-          deleted_lines=$(git diff --stat origin/main...test_branch | awk '{print $1}' | awk -F'-' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
+          # Get the number of lines added and deleted in the pull request between origin/main and test_branch
+          added_lines=$(git diff --shortstat origin/main...test_branch | grep -oP '\d+(?= insertions)' || echo 0)
+          deleted_lines=$(git diff --shortstat origin/main...test_branch | grep -oP '\d+(?= deletions)' || echo 0)
           
+          # Calculate total changes
           total_changes=$((added_lines + deleted_lines))
 
           # Define your threshold values
-          MIN_THRESHOLD=8  # Minimum number of lines allowed
+          MIN_THRESHOLD=10  # Minimum number of lines allowed
           MAX_THRESHOLD=500  # Maximum number of lines allowed
 
           # Compare the changes to the thresholds
