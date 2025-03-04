@@ -1,10 +1,11 @@
 """
 Greeting message
 """
-def greet():
+
+def greet(name):
     """
     Greeting message
     """
-    print("Hello")
+    print(f"Hello, {name}!")
 
-
+greet("World")
