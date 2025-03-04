@@ -15,12 +15,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Check the number of lines changed in the PR
+      # Step 2: Fetch all branches and PR information
+      - name: Fetch all branches
+        run: |
+          git fetch --all
+          git fetch origin pull/${{ github.event.pull_request.number }}/head:test_branch
+
+      # Step 3: Check the number of lines changed in the PR
       - name: Check changes in PR
         run: |
-          # Get the number of lines added and deleted in the pull request
-          added_lines=$(git diff --stat origin/main...HEAD | awk '{print $1}' | awk -F'+' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
-          deleted_lines=$(git diff --stat origin/main...HEAD | awk '{print $1}' | awk -F'-' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
+          # Ensure we're comparing the correct branches
+          added_lines=$(git diff --stat origin/main...test_branch | awk '{print $1}' | awk -F'+' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
+          deleted_lines=$(git diff --stat origin/main...test_branch | awk '{print $1}' | awk -F'-' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
           
           total_changes=$((added_lines + deleted_lines))
 
