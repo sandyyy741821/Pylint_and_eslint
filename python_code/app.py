@@ -3,7 +3,7 @@ Message object checks
 """
 def greet(name):
     """
-    greeting message
+    greeting
     """
     print(f'Hello,{name}!')
 greet("World")
