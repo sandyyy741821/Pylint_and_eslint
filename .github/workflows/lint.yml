@@ -1,0 +1,46 @@
+name: Code Linting
+
+on: [push, pull_request]
+
+jobs:
+  lint-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install pylint
+        run: |
+          cd python_code
+          pip install pylint
+
+      - name: Run pylint
+        run: |
+          cd python_code
+          pylint app.py
+
+  lint-js:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install eslint
+        run: |
+          cd js_code
+          npm install eslint --save-dev
+
+      - name: Run eslint
+        run: |
+          cd js_code
+          npx eslint script.js
