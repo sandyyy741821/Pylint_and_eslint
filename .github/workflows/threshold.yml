@@ -51,3 +51,10 @@ jobs:
           else
             echo "Pull request size is within the acceptable range."
           fi
+      - name: Merge PR if checks pass
+        run: |
+          git checkout main
+          git pull origin main
+          git merge --no-ff ${{ github.head_ref }}
+          git push origin main
+        if: success()  # Only runs if previous steps were successful
