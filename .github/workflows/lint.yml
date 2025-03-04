@@ -10,18 +10,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Check directory structure for debugging
-      - name: Debug Directory Structure
+      # Debug directory structure
+      - name: Check Directory Structure
         run: ls -R
 
-      # Set up Node.js for ESLint
+      # Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: Install JS dependencies
-        run: npm install
+      - name: Install JS Dependencies
+        run: npm ci
+        working-directory: ./js_code
+
+      # Ensure ESLint is installed and has permissions
+      - name: Verify ESLint Installation
+        run: |
+          npx eslint --version
+          ls -l node_modules/.bin
         working-directory: ./js_code
 
       - name: Run ESLint
