@@ -16,7 +16,7 @@ jobs:
 
       - name: Ensure the branch is up to date  
         run: |
-          git fetch origin maingit branch -r
+          git fetch origin main
 
       - name: Calculate changes and check PR size
         run: |
