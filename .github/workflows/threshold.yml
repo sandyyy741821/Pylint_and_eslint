@@ -42,7 +42,7 @@ jobs:
 
           # Define thresholds
           MIN_THRESHOLD=10
-          MAX_THRESHOLD=500
+          MAX_THRESHOLD=20
 
           # Check if the total changes are within the threshold
           if [ "$total_changes" -lt "$MIN_THRESHOLD" ] || [ "$total_changes" -gt "$MAX_THRESHOLD" ]; then
