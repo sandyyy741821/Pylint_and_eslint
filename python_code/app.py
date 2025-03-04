@@ -3,7 +3,7 @@ Message object checks
 """
 def calculate_sum(a, b):
     """
-    calc
+    cal
     """
     return a + b
 def greet(name):
