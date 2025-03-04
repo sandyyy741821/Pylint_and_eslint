@@ -3,7 +3,7 @@ name: PR Size Check
 on:
   pull_request:
     paths:
-      - '**/*'  
+      - '**/*'
 
 jobs:
   check_pr_size:  
@@ -19,17 +19,17 @@ jobs:
 
       - name: Calculate changes and check PR size
         run: |
-  
           added_lines=$(git diff --stat origin/main..HEAD | awk '{print $1}' | awk -F'+' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
           deleted_lines=$(git diff --stat origin/main..HEAD | awk '{print $1}' | awk -F'-' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
 
           total_changes=$((added_lines + deleted_lines))
 
-          MIN_THRESHOLD=10  # Minimum number of lines allowed
-          MAX_THRESHOLD=500  # Maximum number of lines allowed
+          MIN_THRESHOLD=10  
+          MAX_THRESHOLD=500 
 
           if [ "$total_changes" -lt "$MIN_THRESHOLD" ] || [ "$total_changes" -gt "$MAX_THRESHOLD" ]; then
             echo "Pull request size is outside the allowed threshold range of $MIN_THRESHOLD - $MAX_THRESHOLD lines."
-            exit 1  # Fail the action if the size is out of range
+            exit 1  
           else
             echo "Pull request size is within the acceptable range."
+        
