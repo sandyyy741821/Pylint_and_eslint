@@ -21,15 +21,20 @@ jobs:
         run: |
           added_lines=$(git diff --stat origin/main..HEAD | awk '{print $1}' | awk -F'+' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
           deleted_lines=$(git diff --stat origin/main..HEAD | awk '{print $1}' | awk -F'-' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
+          
+          echo "Added lines: $added_lines"
+          echo "Deleted lines: $deleted_lines"
 
           total_changes=$((added_lines + deleted_lines))
 
-          MIN_THRESHOLD=10  
-          MAX_THRESHOLD=500 
+          echo "Total changes: $total_changes"
+
+          MIN_THRESHOLD=10
+          MAX_THRESHOLD=500
 
           if [ "$total_changes" -lt "$MIN_THRESHOLD" ] || [ "$total_changes" -gt "$MAX_THRESHOLD" ]; then
             echo "Pull request size is outside the allowed threshold range of $MIN_THRESHOLD - $MAX_THRESHOLD lines."
-            exit 1  
+            exit 1 
           else
             echo "Pull request size is within the acceptable range."
           fi
