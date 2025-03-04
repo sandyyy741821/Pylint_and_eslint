@@ -1,11 +1,14 @@
 """
-Greeting message
+Message object checks
 """
-
+def calculate_sum(a, b):
+    """
+    cal
+    """
+    return a * b
 def greet(name):
     """
-    Greeting message
+    greeting message
     """
-    print(f"Hello, {name}!")
-
+    print(f'Hello,{name}!')
 greet("World")

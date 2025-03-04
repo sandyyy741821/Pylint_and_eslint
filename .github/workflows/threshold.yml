@@ -1,37 +1,53 @@
 name: PR Size Check
 
-# Trigger the action on pull requests
 on:
   pull_request:
     paths:
-      - '**/*'  # This will monitor all files in the repository
+      - '**/*'
 
 jobs:
-  check-size:
-    runs-on: ubuntu-latest  # Use an Ubuntu runner for the job
+  check_pr_size:
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Check the number of lines changed in the PR
-      - name: Check changes in PR
+      - name: Ensure the branch is up to date
         run: |
-          # Get the number of lines added and deleted in the pull request
-          added_lines=$(git diff --stat origin/main...HEAD | awk '{print $1}' | awk -F'+' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
-          deleted_lines=$(git diff --stat origin/main...HEAD | awk '{print $1}' | awk -F'-' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
-          
+          git fetch origin main
+
+      - name: Calculate changes and check PR size
+        run: |
+          # Calculate added and deleted lines using git diff --numstat
+          diff_stats=$(git diff --numstat origin/main..HEAD)
+
+          # If there are no changes, set added_lines and deleted_lines to 0
+          added_lines=0
+          deleted_lines=0
+
+          # Parse the diff stats output
+          while read -r added del _; do
+            added_lines=$((added_lines + added))
+            deleted_lines=$((deleted_lines + del))
+          done <<< "$diff_stats"
+
+          # Log the added and deleted lines
+          echo "Added lines: $added_lines"
+          echo "Deleted lines: $deleted_lines"
+
+          # Calculate total changes
           total_changes=$((added_lines + deleted_lines))
+          echo "Total changes: $total_changes"
 
-          # Define your threshold values
-          MIN_THRESHOLD=10  # Minimum number of lines allowed
-          MAX_THRESHOLD=500  # Maximum number of lines allowed
+          # Define thresholds
+          MIN_THRESHOLD=10
+          MAX_THRESHOLD=200
 
-          # Compare the changes to the thresholds
+          # Check if the total changes are within the threshold
           if [ "$total_changes" -lt "$MIN_THRESHOLD" ] || [ "$total_changes" -gt "$MAX_THRESHOLD" ]; then
-            echo "Pull request size is outside the allowed threshold range of $MIN_THRESHOLD - $MAX_THRESHOLD lines"
-            exit 1  # Fail the job if the size is out of range
+            echo "Pull request size is outside the allowed threshold range of $MIN_THRESHOLD - $MAX_THRESHOLD lines."
+            exit 1  # Fail the action if the size is out of range
           else
             echo "Pull request size is within the acceptable range."
           fi
