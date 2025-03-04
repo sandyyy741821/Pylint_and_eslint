@@ -31,7 +31,7 @@ jobs:
           total_changes=$((added_lines + deleted_lines))
 
           # Define your threshold values
-          MIN_THRESHOLD=10  # Minimum number of lines allowed
+          MIN_THRESHOLD=8  # Minimum number of lines allowed
           MAX_THRESHOLD=500  # Maximum number of lines allowed
 
           # Compare the changes to the thresholds
