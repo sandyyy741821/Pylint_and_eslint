@@ -19,8 +19,8 @@ jobs:
 
       - name: Calculate changes and check PR size
         run: |
-          added_lines=$(git diff --stat origin/main..HEAD | awk '{print $1}' | awk -F'+' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
-          deleted_lines=$(git diff --stat origin/main..HEAD | awk '{print $1}' | awk -F'-' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
+          added_lines=$(git diff --stat origin/main..test_branch | awk '{print $1}' | awk -F'+' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
+          deleted_lines=$(git diff --stat origin/main..test_branch | awk '{print $1}' | awk -F'-' '{print $2}' | grep -o '[0-9]\+' | awk '{s+=$1} END {print s}')
           
           echo "Added lines: $added_lines"
           echo "Deleted lines: $deleted_lines"
