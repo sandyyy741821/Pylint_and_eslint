@@ -5,7 +5,7 @@ def calculate_sum(a, b):
     """
     cal
     """
-    return a - b
+    return a * b
 def greet(name):
     """
     greeting message
