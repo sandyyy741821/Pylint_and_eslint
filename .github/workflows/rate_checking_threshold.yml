@@ -1,9 +1,6 @@
 name: Pylint and ESLint Quality Check
 
-on:
-  pull_request:
-    paths:
-      - '**/*'
+on: [push, pull_request]
 
 jobs:
   quality-check:
@@ -88,5 +85,5 @@ jobs:
             echo "Rate check failed. Pylint or ESLint score is below 9."
             exit 1
           else
-            echo "✅Rate check passed. Both Pylint and ESLint scores are 9 or above."
+            echo "Rate check passed. Both Pylint and ESLint scores are 9 or above."
           fi
