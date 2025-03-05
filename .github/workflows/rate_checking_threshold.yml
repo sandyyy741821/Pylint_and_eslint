@@ -20,19 +20,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install pylint
 
-      - name: Run pylint and extract score
-        id: pylint_check
+      - name: Run Pylint and Extract Score
         run: |
-          # Ensure Python files exist
-          if ls *.py 1> /dev/null 2>&1; then
-            score=$(pylint *.py --output-format=parseable --score=y | grep "rated at" | awk '{print $7}' | cut -d'/' -f1)
-          else
-            echo "No Python files found!"
-            score=0
-          fi
-
-          echo "Pylint score: $score"
-          echo "pylint_score=$score" >> $GITHUB_ENV
+            pylint_output=$(pylint python_code/app.py || true)
+            echo "$pylint_output"
+            pylint_score=$(echo "$pylint_output" | grep -oP '(?<=rated at )[-+]?[0-9]*\.?[0-9]+')
+            echo "Extracted Pylint Score: $pylint_score"
+            echo "pylint_score=$pylint_score" >> $GITHUB_ENV
+        
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
