@@ -1,0 +1,53 @@
+name: PR Size Check
+
+on:
+  pull_request:
+    paths:
+      - '**/*'
+
+jobs:
+  check_pr_size:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Ensure the branch is up to date
+        run: |
+          git fetch origin main
+
+      - name: Calculate changes and check PR size
+        run: |
+          # Calculate added and deleted lines using git diff --numstat
+          diff_stats=$(git diff --numstat origin/main..HEAD)
+
+          # If there are no changes, set added_lines and deleted_lines to 0
+          added_lines=0
+          deleted_lines=0
+
+          # Parse the diff stats output
+          while read -r added del _; do
+            added_lines=$((added_lines + added))
+            deleted_lines=$((deleted_lines + del))
+          done <<< "$diff_stats"
+
+          # Log the added and deleted lines
+          echo "Added lines: $added_lines"
+          echo "Deleted lines: $deleted_lines"
+
+          # Calculate total changes
+          total_changes=$((added_lines + deleted_lines))
+          echo "Total changes: $total_changes"
+
+          # Define thresholds
+          MIN_THRESHOLD=10
+          MAX_THRESHOLD=500
+
+          # Check if the total changes are within the threshold
+          if [ "$total_changes" -lt "$MIN_THRESHOLD" ] || [ "$total_changes" -gt "$MAX_THRESHOLD" ]; then
+            echo "Pull request size is outside the allowed threshold range of $MIN_THRESHOLD - $MAX_THRESHOLD lines."
+            exit 1  # Fail the action if the size is out of range
+          else
+            echo "Pull request size is within the acceptable range."
+          fi
