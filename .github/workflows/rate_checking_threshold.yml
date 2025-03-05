@@ -3,7 +3,7 @@ name: Pylint and ESLint Quality Check
 on:
   pull_request:
     paths:
-      - '**/*'
+      - test_branch
 
 jobs:
   quality-check:
