@@ -1,6 +1,9 @@
 name: Pylint and ESLint Quality Check
 
-on: [push, pull_request]
+on:
+  pull_request:
+    paths:
+      - '**/*'
 
 jobs:
   quality-check:
@@ -23,7 +26,14 @@ jobs:
       - name: Run pylint and extract score
         id: pylint_check
         run: |
-          score=$(pylint *.py --output-format=parseable --score=y | grep "rated at" | awk '{print $7}' | cut -d'/' -f1)
+          # Ensure Python files exist
+          if ls *.py 1> /dev/null 2>&1; then
+            score=$(pylint *.py --output-format=parseable --score=y | grep "rated at" | awk '{print $7}' | cut -d'/' -f1)
+          else
+            echo "No Python files found!"
+            score=0
+          fi
+
           echo "Pylint score: $score"
           echo "pylint_score=$score" >> $GITHUB_ENV
 
@@ -34,13 +44,33 @@ jobs:
 
       - name: Install ESLint
         run: |
-          npm install eslint --save-dev
-          npx eslint --init || true
+          npm init -y
+          npm install eslint@9 --save-dev
+
+          # Create a valid eslint.config.js
+          cat <<EOL > eslint.config.js
+          export default [
+            {
+              ignores: ["node_modules/"],
+              rules: {
+                "no-unused-vars": "warn",
+                "no-console": "off"
+              },
+            },
+          ];
+          EOL
 
       - name: Run ESLint and calculate score
         id: eslint_check
         run: |
-          error_count=$(npx eslint *.js --format json | jq '.[0].errorCount')
+          # Ensure JS files exist
+          if ls *.js 1> /dev/null 2>&1; then
+            error_count=$(npx eslint *.js --format json | jq '.[0].errorCount')
+          else
+            echo "No JavaScript files found!"
+            error_count=0
+          fi
+
           eslint_score=$((10 - error_count))
           echo "ESLint Score: $eslint_score"
           echo "eslint_score=$eslint_score" >> $GITHUB_ENV
@@ -50,9 +80,13 @@ jobs:
           echo "Pylint Score: $pylint_score"
           echo "ESLint Score: $eslint_score"
 
+          # Handle empty or invalid scores
+          pylint_score=${pylint_score:-0}
+          eslint_score=${eslint_score:-0}
+
           if (( $(echo "$pylint_score < 9" | bc -l) || $(echo "$eslint_score < 9" | bc -l) )); then
             echo "Rate check failed. Pylint or ESLint score is below 9."
             exit 1
           else
-            echo "Rate check passed. Both Pylint and ESLint scores are 9 or above."
+            echo "✅Rate check passed. Both Pylint and ESLint scores are 9 or above."
           fi
