@@ -7,8 +7,5 @@ def calculate_sum(a, b):
     """
     return a * b
 def greet(name):
-    """
-    greeting message
-    """
     print(f'Hello,{name}!')
 greet("World")
