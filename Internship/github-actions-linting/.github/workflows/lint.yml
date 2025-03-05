@@ -1,0 +1,46 @@
+name: Code Linting
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check Directory Structure
+        run: ls -R
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install JS Dependencies
+        run: npm ci
+        working-directory: ./js_code
+
+      - name: Verify ESLint Installation
+        run: |
+          npx eslint --version
+          ls -l node_modules/.bin
+        working-directory: ./js_code
+
+      - name: Run ESLint
+        run: npx eslint script.js --config eslint.config.mjs
+        working-directory: ./js_code
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install PyLint
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint
+
+      - name: Run PyLint
+        run: pylint python_code/*.py

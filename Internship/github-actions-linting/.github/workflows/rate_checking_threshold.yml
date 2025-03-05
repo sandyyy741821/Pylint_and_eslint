@@ -1,0 +1,61 @@
+name: pylint and Eslint Quality Check
+
+on:
+    pull_request:
+        branches:
+            -main
+
+jobs:
+    quality-check:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Python set up 
+              uses: actions/setup-python@v4
+              with: 
+                python-version: '3.13'
+            
+            - name: Install dependencies
+              run: |
+                python -m pip install --upgrade pip
+                pip install pylint
+
+            - name: Run pylint and extract score
+              id: pylint_check
+              run: |
+                score=$(pylint app.py --output-format=parseable --score=y | grep "rated at" |awk '{print $7}' | cut -d'/' -f1)
+                echo "Pylint score:$score"
+                echo "pylint_score=$score" >> $GITHUB_ENV
+            
+                - name: Set up Node.js
+                uses: actions/setup-node@v3
+                with:
+                  node-version: '18'
+        
+            - name: Install ESLint
+              run: |
+                  npm install eslint --save-dev
+                  npx eslint --init || true
+   
+            - name: Run ESLint and Calculate Score
+              id: eslint_check
+              run: |
+                  error_count=$(npx eslint *.js --format json | jq '.[0].errorCount')
+                  eslint_score=$((10 - error_count))
+                  echo "ESLint Score: $eslint_score"
+                  echo "eslint_score=$eslint_score" >> $GITHUB_ENV
+        
+            - name: Validate Scores
+              run: |
+                  echo "Pylint Score: $pylint_score"
+                  echo "ESLint Score: $eslint_score"
+                  
+                  if (( $(echo "$pylint_score < 9" | bc -l) || $(echo "$eslint_score < 9" | bc -l) )); then
+                    echo "Rate check failed. Pylint or ESLint score is below 9."
+                    exit 1
+                  else
+                    echo "Rate check passed. Both Pylint and ESLint scores are 9 or above."
+                  fi
